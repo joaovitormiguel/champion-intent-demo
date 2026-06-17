@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Champion — See who's engaging (live)</title>
+<meta name="description" content="A live look at how Champion names your in-market buyers. Click around the left — watch your own intent build on the right." />
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://use.typekit.net/qzp2ywl.css">
+<link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#141414; --cream:#F7F3E9; --amber:#F9AC24; --white:#fff;
+    --bg:#0E0E0E; --surf:#161616; --surf2:#1d1d1d; --bd:#2a2a2a; --tx:#F2F2F2; --mut:#8A8A8A; --faint:#3a3a3a;
+    --warm:#E0A53A; --hot:#D2564B; --new:#7a7a7a;
+    --mono:'Azeret Mono',ui-monospace,Menlo,monospace;
+    --disp:'podium-sharp-variable','Arial Narrow','Helvetica Neue',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--mono);background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased}
+  .disp{font-family:var(--disp);font-style:italic;font-weight:800;text-transform:uppercase;line-height:.92}
+  .ey{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--mut)}
+  a{color:inherit}
+
+  /* top bar */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:14px clamp(16px,4vw,40px);background:var(--ink);border-bottom:1px solid var(--bd)}
+  .top .brand{display:flex;align-items:center;gap:10px}
+  .top .sq{width:10px;height:10px;background:var(--amber);border-radius:2px}
+  .top .wm{font-family:var(--disp);font-style:italic;font-weight:800;text-transform:uppercase;color:#fff;font-size:18px;letter-spacing:.01em}
+  .top .hint{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber)}
+  @media(max-width:640px){.top .hint{display:none}}
+
+  /* split */
+  .wrap{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 53px)}
+  @media(max-width:880px){.wrap{grid-template-columns:1fr}}
+  .pane{padding:clamp(20px,3vw,38px);overflow:auto}
+  .left{background:var(--cream);color:var(--ink)}
+  .right{background:var(--bg);border-left:1px solid var(--bd);position:relative}
+  @media(max-width:880px){.right{border-left:none;border-top:1px solid var(--bd)}}
+
+  /* LEFT — the creative (bait) */
+  .left .lbl{color:#9a8f76}
+  .hero{margin:14px 0 8px}
+  .hero h1{font-size:clamp(34px,5vw,60px);color:var(--ink)}
+  .hero h1 .am{color:var(--amber)}
+  .sub{margin:12px 0 20px;font-size:14px;line-height:1.5;max-width:42ch;color:#3c382f}
+  .film{position:relative;border-radius:14px;overflow:hidden;background:#141414;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid #d8d2c4}
+  .film .poster{position:absolute;inset:0;background:
+    radial-gradient(120% 90% at 70% 30%, rgba(249,172,36,.35), transparent 60%),
+    linear-gradient(160deg,#1a1a1a,#0c0c0c)}
+  .film .play{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;color:#fff}
+  .film .pbtn{width:62px;height:62px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center}
+  .film .pbtn:after{content:"";border-left:18px solid var(--ink);border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:5px}
+  .film .ptxt{font-size:11px;letter-spacing:.22em;text-transform:uppercase}
+  .film .bar{position:absolute;left:0;bottom:0;height:4px;width:0;background:var(--amber);z-index:3;transition:width .15s linear}
+  .film .time{position:absolute;right:10px;bottom:10px;z-index:3;font-size:11px;color:#fff;letter-spacing:.1em;opacity:.85}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .tile{background:#fff;border:1px solid #e3ddd0;border-radius:12px;padding:16px 16px 14px;cursor:pointer;transition:transform .12s,border-color .12s}
+  .tile:hover{transform:translateY(-2px);border-color:var(--amber)}
+  .tile .k{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#9a8f76}
+  .tile .t{font-family:var(--disp);font-style:italic;font-weight:800;text-transform:uppercase;font-size:19px;margin-top:8px;line-height:1.05}
+  .tile.cta{background:var(--ink);border-color:var(--ink)}
+  .tile.cta .k{color:var(--amber)} .tile.cta .t{color:#fff}
+  .filler{margin-top:22px;font-size:13px;line-height:1.7;color:#544f44;max-width:54ch}
+  .filler p{margin:0 0 12px}
+
+  /* RIGHT — the system (control room) */
+  .right .lbl{color:var(--mut)}
+  .card{margin:14px 0 18px;background:var(--surf);border:1px solid var(--bd);border-radius:14px;padding:20px;transition:border-color .3s, box-shadow .3s}
+  .card.warm{border-color:rgba(224,165,58,.6);box-shadow:0 0 0 1px rgba(224,165,58,.25)}
+  .card.hot{border-color:rgba(210,86,75,.8);box-shadow:0 0 0 1px rgba(210,86,75,.35),0 0 40px rgba(210,86,75,.15)}
+  .crow{display:flex;align-items:center;gap:14px}
+  .av{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,#2a2a2a,#161616);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--mut);font-size:15px}
+  .who .n{font-family:var(--disp);font-style:italic;font-weight:800;text-transform:uppercase;font-size:20px;color:#fff;line-height:1}
+  .who .r{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-top:5px}
+  .pill{margin-left:auto;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;padding:6px 11px;border-radius:999px;display:flex;align-items:center;gap:7px;background:#202020;color:var(--new)}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+  .pill.warm{color:var(--warm);background:rgba(224,165,58,.12)}
+  .pill.hot{color:var(--hot);background:rgba(210,86,75,.14)}
+  .score{display:flex;align-items:flex-end;gap:10px;margin-top:18px}
+  .score .num{font-family:var(--disp);font-style:italic;font-weight:800;font-size:54px;line-height:.8;color:#fff}
+  .score .of{font-size:12px;color:var(--mut);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+  .score .lab{margin-left:auto;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+  .track{height:8px;border-radius:5px;background:#202020;margin-top:12px;overflow:hidden}
+  .track .fill{height:100%;width:0;background:linear-gradient(90deg,var(--warm),var(--amber));transition:width .5s ease, background .4s}
+  .card.hot .track .fill{background:linear-gradient(90deg,var(--hot),#e8704f)}
+  .seen{display:flex;gap:24px;margin-top:16px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+  .seen b{color:var(--tx);font-weight:600}
+
+  .feedhd{display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px}
+  .feedhd .c{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+  .feed{display:flex;flex-direction:column;gap:7px}
+  .ev{display:flex;align-items:center;gap:12px;background:var(--surf);border:1px solid var(--bd);border-radius:9px;padding:11px 13px;animation:slin .35s ease}
+  @keyframes slin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  .ev .ts{font-size:11px;color:var(--mut);letter-spacing:.04em;flex:none;width:62px}
+  .ev .sg{font-size:13px;color:var(--tx);flex:1}
+  .ev .pt{font-size:12px;font-weight:600;color:var(--amber);letter-spacing:.04em}
+  .empty{color:var(--faint);font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:8px 2px}
+
+  .foot{margin-top:22px;padding-top:18px;border-top:1px solid var(--bd)}
+  .foot .p{font-size:15px;line-height:1.45;color:var(--tx)}
+  .foot .p b{color:var(--amber)}
+  .foot a.cta2{display:inline-block;margin-top:14px;background:var(--amber);color:var(--ink);text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:13px 22px;border-radius:999px}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);opacity:0;
+    background:var(--hot);color:#fff;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
+    padding:12px 20px;border-radius:999px;z-index:50;transition:opacity .3s, transform .3s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <span class="brand"><span class="sq"></span><span class="wm">Champion</span></span>
+  <span class="hint">● Live — you're in the system right now</span>
+</div>
+
+<div class="wrap">
+  <!-- LEFT : the creative (the bait) -->
+  <section class="pane left" id="site">
+    <div class="ey lbl">// The creative — the bait</div>
+    <div class="hero">
+      <h1 class="disp">For brands<br>that <span class="am">move.</span></h1>
+      <p class="sub">Click around like a real buyer would. Watch the film, open the case study, check pricing. Then look right.</p>
+    </div>
+
+    <div class="film" id="film" role="button" aria-label="Play brand film">
+      <div class="poster"></div>
+      <div class="play" id="playUI"><div class="pbtn"></div><div class="ptxt">Brand film · 0:40</div></div>
+      <div class="time" id="filmTime" style="display:none">0:00 / 0:40</div>
+      <div class="bar" id="filmBar"></div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile" data-sig="Opened the Bitfreighter case study" data-pt="16"><div class="k">// Proof</div><div class="t">Bitfreighter<br>case study</div></div>
+      <div class="tile" data-sig="Viewed pricing" data-pt="20" id="pricing"><div class="k">// Money</div><div class="t">See<br>pricing</div></div>
+      <div class="tile" data-sig="Watched the reel" data-pt="9"><div class="k">// Work</div><div class="t">Our<br>reel</div></div>
+      <div class="tile cta" data-sig="Clicked “Book a demo”" data-pt="34"><div class="k">// Hot</div><div class="t">Book a<br>demo →</div></div>
+    </div>
+
+    <div class="filler">
+      <p>Your product is ahead of your marketing. The right people either aren't noticing — or are noticing the wrong thing. We build creative your exact buyers actually click, run it at them on the channels logistics decision-makers live on, and track every interaction down to the named person.</p>
+      <p>Scroll. Hover. Leave and come back. Everything you do on this page is a signal — exactly the way it would work on your own buyers. The panel on the right is the part your sales team has never had: certainty about who to call.</p>
+      <p>Keep going — get your score past 65 and watch what happens.</p>
+    </div>
+  </section>
+
+  <!-- RIGHT : the system (control room) -->
+  <section class="pane right">
+    <div class="ey lbl">// The system — what your reps see</div>
+
+    <div class="card" id="card">
+      <div class="crow">
+        <div class="av">YOU</div>
+        <div class="who"><div class="n">You</div><div class="r">VP of Operations · live session</div></div>
+        <div class="pill" id="pill"><span class="dot"></span><span id="pillTxt">New</span></div>
+      </div>
+      <div class="score">
+        <div class="num" id="num">0</div><div class="of">/ 100</div>
+        <div class="lab">Intent score</div>
+      </div>
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <div class="seen"><span>First seen <b id="first">—</b></span><span>Last signal <b id="last">—</b></span><span>Signals <b id="cnt">0</b></span></div>
+    </div>
+
+    <div class="feedhd"><span class="c">Live intent feed</span><span class="c" id="feedcnt">0 events</span></div>
+    <div class="feed" id="feed"><div class="empty" id="emptymsg">Waiting for the first signal…</div></div>
+
+    <div class="foot">
+      <div class="p"><b>This is exactly what your reps would see</b> about every buyer in your pipeline — named, scored, in real time. No more cold-calling strangers.</div>
+      <a class="cta2" href="#" id="cta2">Want this on your buyers? →</a>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast">🔥 This contact just went HOT — your rep gets pinged</div>
+
+<script>
+(function(){
+  var score=0, count=0, firstAt=null, hotFired=false;
+  var num=document.getElementById('num'), fill=document.getElementById('fill'),
+      pill=document.getElementById('pill'), pillTxt=document.getElementById('pillTxt'),
+      card=document.getElementById('card'), feed=document.getElementById('feed'),
+      empty=document.getElementById('emptymsg'), firstEl=document.getElementById('first'),
+      lastEl=document.getElementById('last'), cntEl=document.getElementById('cnt'),
+      feedcnt=document.getElementById('feedcnt'), toast=document.getElementById('toast');
+
+  function now(){var d=new Date();function p(n){return(n<10?'0':'')+n}return p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());}
+  function animateNum(to){var from=score; var t0=performance.now();
+    function step(t){var k=Math.min(1,(t-t0)/450); var v=Math.round(from+(to-from)*k); num.textContent=v; if(k<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);}
+
+  function status(){
+    if(score>=65){card.className='card hot';pill.className='pill hot';pillTxt.textContent='Hot — call now';
+      if(!hotFired){hotFired=true; toast.classList.add('show'); setTimeout(function(){toast.classList.remove('show')},3400);}}
+    else if(score>=25){card.className='card warm';pill.className='pill warm';pillTxt.textContent='Warming up';}
+    else {card.className='card';pill.className='pill';pillTxt.textContent='New';}
+  }
+
+  function track(sig,pts){
+    var t=now();
+    if(firstAt===null){firstAt=t; firstEl.textContent=t;}
+    score=Math.min(100,score+pts); count++;
+    if(empty){empty.remove(); empty=null;}
+    var row=document.createElement('div'); row.className='ev';
+    row.innerHTML='<span class="ts">'+t+'</span><span class="sg">'+sig+'</span><span class="pt">+'+pts+'</span>';
+    feed.insertBefore(row, feed.firstChild);
+    lastEl.textContent=t; cntEl.textContent=count; feedcnt.textContent=count+(count===1?' event':' events');
+    animateNum(score); fill.style.width=score+'%'; status();
+  }
+
+  // --- generic clickable tiles ---
+  document.querySelectorAll('.tile').forEach(function(el){
+    el.addEventListener('click',function(){ track(el.dataset.sig, parseInt(el.dataset.pt,10)); });
+  });
+  // lingering on pricing = stronger intent
+  var pricing=document.getElementById('pricing'), priceTimer;
+  if(pricing){ pricing.addEventListener('mouseenter',function(){ priceTimer=setTimeout(function(){track('Lingered on pricing',12)},1500); });
+    pricing.addEventListener('mouseleave',function(){ clearTimeout(priceTimer); }); }
+
+  // --- brand film "watch" ---
+  var film=document.getElementById('film'), bar=document.getElementById('filmBar'),
+      timeEl=document.getElementById('filmTime'), playUI=document.getElementById('playUI'),
+      playing=false, watched=0, m10=false, m40=false, fInt;
+  film.addEventListener('click',function(){
+    if(playing) return; playing=true; playUI.style.display='none'; timeEl.style.display='block';
+    track('Started the brand film',6);
+    fInt=setInterval(function(){
+      watched+=1; var mm='0:'+(watched<10?'0':'')+watched;
+      timeEl.textContent=mm+' / 0:40'; bar.style.width=(watched/40*100)+'%';
+      if(watched>=10 && !m10){m10=true; track('Watched 0:10 of the brand film',9);}
+      if(watched>=40){m40=true; clearInterval(fInt); track('Finished the brand film (0:40)',24);
+        timeEl.textContent='0:40 / 0:40 ✓';}
+    },170); // ~7s real to "watch" 40s
+  });
+
+  // --- scroll depth on the left pane ---
+  var site=document.getElementById('site'), s50=false,s90=false;
+  site.addEventListener('scroll',function(){
+    var p=(site.scrollTop)/(site.scrollHeight-site.clientHeight+0.01);
+    if(p>=.5 && !s50){s50=true; track('Scrolled halfway down',6);}
+    if(p>=.9 && !s90){s90=true; track('Read to the bottom',10);}
+  });
+
+  // --- left & came back (return visit signal) ---
+  var away=false;
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){away=true;}
+    else if(away){away=false; track('Left and came back',13);}
+  });
+
+  // --- dwell time trickle ---
+  var dwell=0;
+  setInterval(function(){ dwell++; if(dwell%4===0 && score>0 && score<100){ track('Still on the page ('+(dwell*5)+'s)',3);} },5000);
+
+  // --- final CTA ---
+  document.getElementById('cta2').addEventListener('click',function(e){e.preventDefault(); track('Asked for it on their own buyers',30);});
+
+  // first touch
+  setTimeout(function(){ track('Landed on the page — first touch',5); },650);
+})();
+</script>
+</body>
+</html>
